@@ -1,0 +1,49 @@
+{
+  "name": "nonstop-cli",
+  "version": "0.1.0",
+  "description": "nonstop CLI for building, packaging and uploading locally",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "bin": {
+    "ns": "./bin/nonstop"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/LeanKit-Labs/nonstop-cli"
+  },
+  "keywords": [
+    "nonstop",
+    "ci",
+    "cli",
+    "build"
+  ],
+  "author": "Alex Robson",
+  "license": "MIT License",
+  "bugs": {
+    "url": "https://github.com/LeanKit-Labs/nonstop-cli/issues"
+  },
+  "homepage": "https://github.com/LeanKit-Labs/nonstop-cli",
+  "devDependencies": {
+    "gulp": "^3.8.7",
+    "gulp-mocha": "^1.0.0",
+    "nock": "^0.50.0",
+    "should": "^4.0.4",
+    "sinon": "^1.12.1"
+  },
+  "dependencies": {
+    "commander": "~2.5.0",
+    "daedalus": "~0.3.2",
+    "debug": "^2.1.0",
+    "inquirer": "^0.7.2",
+    "js-yaml": "^3.2.2",
+    "lodash": "^2.4.1",
+    "machina": "^0.4.0-1",
+    "nonstop-build": "~0.1.0-4",
+    "nonstop-index-client": "~0.1.0-6",
+    "nonstop-pack": "~0.1.0-3",
+    "open": "0.0.5",
+    "when": "^3.4.6"
+  }
+}

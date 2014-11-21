@@ -1,0 +1,21 @@
+{
+  "platforms": {
+    "darwin": {
+      "architectures": [
+        "x64"
+      ]
+    }
+  },
+  "projects": {
+    "cli": {
+      "path": "./",
+      "steps": {
+        "test": {
+          "command": "gulp",
+          "path": "./",
+          "arguments": []
+        }
+      }
+    }
+  }
+}
