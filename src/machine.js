@@ -3,7 +3,7 @@ var when = require( 'when' );
 var machina = require( 'machina' );
 var debug = require( 'debug' )( 'nonstop:cli' );
 
-module.exports = function( workingPath, prompt, build, pack, index ) {
+module.exports = function( workingPath, prompt, build, index ) {
 	var Machine = machina.Fsm.extend( {
 		
 		raiseAny: function( step ) {
@@ -61,7 +61,7 @@ module.exports = function( workingPath, prompt, build, pack, index ) {
 			},
 			build: {
 				_onEnter: function() {
-					console.log( 'starting build' );
+					console.log( 'Starting build' );
 					build.start( workingPath, this.options.project, this.options.nopack )
 						.then( function( info ) {
 							this.handle( 'build.done', info );
@@ -71,18 +71,25 @@ module.exports = function( workingPath, prompt, build, pack, index ) {
 						}.bind( this ) );
 				},
 				'build.done': function( info ) {
-					console.log( 'Completed build of "' + info.length + '" package(s):' );
-					_.map( info, function( i ) {
-						var details = _.clone( i );
-						if( i.files ) {
-							details.fileCount = details.files.length;
-							delete details.files;
-						}
-						console.log( details );
-					} );
+					var onNoPackage;
 					if( this.options.nopack ) {
-						console.log( '*** No packages were created ***' );
+						console.log( '*** nopack specified: no packages were created ***' );
+						onNoPackage = 'nopack specified.';
 					}
+					console.log( 'Completed build of ' + info.length + ' package(s):' );
+					_.map( info, function( i ) {
+						var projectName = i.value.name.split( '~' )[ 0 ];
+						if( !i.value.failed ) {
+							var project = i.value;
+							if( project.files ) {
+								console.log( '    ' + projectName + ' - "' + project.output + '" => ' + project.files.length + ' files.' );
+							} else {
+								console.log( '    ' + projectName + ' - ' + ( onNoPackage || 'no files matched pattern: "' + project.pattern + '"' ) );
+							}
+						} else {
+							console.log( '    ' + projectName + ' - ' + i.value.error );
+						}
+					} );
 				}, 
 				'build.failed': function( err ) {
 					console.log( err );

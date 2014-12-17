@@ -35,7 +35,8 @@ function parseArgs( args ) {
 	var commander = require( 'commander' );
 	args = args || process.argv;
 	var options = {
-		action: 'build'
+		action: 'build',
+		nopack: false
 	};
 
 	commander
