@@ -1,6 +1,6 @@
 {
   "name": "nonstop-cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "nonstop CLI for building, packaging and uploading locally",
   "main": "src/index.js",
   "scripts": {
@@ -38,6 +38,7 @@
     "commander": "~2.5.0",
     "daedalus": "~0.3.2",
     "debug": "^2.1.0",
+    "globulesce": "^0.1.4",
     "inquirer": "^0.7.2",
     "js-yaml": "^3.2.2",
     "lodash": "^2.4.1",
