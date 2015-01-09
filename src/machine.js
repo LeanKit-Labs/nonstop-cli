@@ -3,9 +3,9 @@ var when = require( 'when' );
 var machina = require( 'machina' );
 var debug = require( 'debug' )( 'nonstop:cli' );
 
-module.exports = function( workingPath, prompt, build, pack, index ) {
+module.exports = function( workingPath, prompt, build, index ) {
 	var Machine = machina.Fsm.extend( {
-		
+
 		raiseAny: function( step ) {
 			return function( err, result ) {
 				var ev = step + '.' + ( err ? 'failed' : 'done' );
@@ -18,7 +18,7 @@ module.exports = function( workingPath, prompt, build, pack, index ) {
 				this.handle( step + '.done', result );
 			}.bind( this );
 		},
-		
+
 		initialState: 'initializing',
 		states: {
 			initializing: {
@@ -27,13 +27,13 @@ module.exports = function( workingPath, prompt, build, pack, index ) {
 					build.hasBuildFile( workingPath )
 						.then( function( result ) {
 							this.hasBuildFile = result;
-							if( result ) {
+							if ( result ) {
 								debug( 'build file found' );
 								this.transition( 'checkingParameters' );
 							} else {
 								debug( 'no file found :(' );
 								this.transition( 'createBuild' );
-							}							
+							}
 						}.bind( this ) )
 						.then( null, function( err ) {
 							prompt.error( 'Invalid working directory - "' + workingPath + '"', err );
@@ -61,7 +61,7 @@ module.exports = function( workingPath, prompt, build, pack, index ) {
 			},
 			build: {
 				_onEnter: function() {
-					console.log( 'starting build' );
+					console.log( 'Starting build' );
 					build.start( workingPath, this.options.project, this.options.nopack )
 						.then( function( info ) {
 							this.handle( 'build.done', info );
@@ -71,29 +71,36 @@ module.exports = function( workingPath, prompt, build, pack, index ) {
 						}.bind( this ) );
 				},
 				'build.done': function( info ) {
-					console.log( 'Completed build of "' + info.length + '" package(s):' );
-					_.map( info, function( i ) {
-						var details = _.clone( i );
-						if( i.files ) {
-							details.fileCount = details.files.length;
-							delete details.files;
-						}
-						console.log( details );
-					} );
-					if( this.options.nopack ) {
-						console.log( '*** No packages were created ***' );
+					var onNoPackage;
+					if ( this.options.nopack ) {
+						console.log( '*** nopack specified: no packages were created ***' );
+						onNoPackage = 'nopack specified.';
 					}
-				}, 
+					console.log( 'Completed build of ' + info.length + ' package(s):' );
+					_.map( info, function( i ) {
+						var projectName = i.value.name.split( '~' )[ 0 ];
+						if ( !i.value.failed ) {
+							var project = i.value;
+							if ( project.files ) {
+								console.log( '    ' + projectName + ' - "' + project.output + '" => ' + project.files.length + ' files.' );
+							} else {
+								console.log( '    ' + projectName + ' - ' + ( onNoPackage || 'no files matched pattern: "' + project.pattern + '"' ) );
+							}
+						} else {
+							console.log( '    ' + projectName + ' - ' + i.value.error );
+						}
+					} );
+				},
 				'build.failed': function( err ) {
 					console.log( err );
 				}
 			},
 			upload: {
 				_onEnter: function() {
-					if( !_.isEmpty( this.options.packages ) ) {
+					if ( !_.isEmpty( this.options.packages ) ) {
 						this.handle( 'packages.done', this.options.packages );
 					} else {
-						prompt.pick( this.raiseResult( 'packages' ) );	
+						prompt.pick( this.raiseResult( 'packages' ) );
 					}
 				},
 				'packages.failed': function( x ) {
@@ -101,8 +108,12 @@ module.exports = function( workingPath, prompt, build, pack, index ) {
 				},
 				'packages.done': function( selections ) {
 					this.selections = selections;
-					debug( 'packages selected for upload: %', selections );
-					prompt.server( this.raiseResult( 'server' ) );
+					if ( this.selections.length > 0 ) {
+						debug( 'packages selected for upload: %', selections );
+						prompt.server( this.raiseResult( 'server' ) );
+					} else {
+						console.log( 'No packages selected for upload' );
+					}
 				},
 				'token.done': function( auth ) {
 					this.handle( 'upload', { token: auth.token } );
@@ -116,31 +127,35 @@ module.exports = function( workingPath, prompt, build, pack, index ) {
 				},
 				upload: function( options ) {
 					try {
-					var client = index( {
-					  index: {
-							host: this.address,
-							port: this.port,
-							token: options.token
-						}
-					} );
-					var promises = _.map( this.selections, function( pkg ) {
-						return client.upload( pkg );
-					} );
-					when.all( promises )
-						.then( function() {
-							console.log( 'Upload(s) complete' );
-						} )
-						.then( null, function( err ) {
-							console.log( 'Upload(s) failed with', err );
+						var client = index( {
+							index: {
+								host: this.address,
+								port: this.port,
+								token: options.token
+							}
 						} );
-					} catch( e ) { console.log( ':(', e ); }
+						var promises = _.map( this.selections, function( pkg ) {
+							return client.upload( pkg );
+						} );
+						when.all( promises )
+							.then( function() {
+								console.log( 'Upload(s) complete' );
+							} )
+							.then( null, function( err ) {
+								console.log( 'Upload(s) failed with', err );
+							} );
+					} catch (e) {
+						console.log( ':(', e );
+					}
 				}
 			},
 			prompt: {
 				_onEnter: function() {
 					try {
 						prompt.initiate( this.raiseResult( 'prompt' ) );
-					} catch( e ) { console.log( e.stack ); }
+					} catch (e) {
+						console.log( e.stack );
+					}
 				},
 				'prompt.done': function( choice ) {
 					var nextState = prompt.lookup[ choice.initialization ];

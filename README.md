@@ -60,7 +60,7 @@ This project depends on several core nonstop modules:
 
  * [nonstop-pack](https://github.com/LeanKit-Labs/nonstop-pack)
  * [nonstop-build](https://github.com/LeanKit-Labs/nonstop-build)
- * [nonstop-hub-client](https://github.com/LeanKit-Labs/nonstop-hub-client)
+ * [nonstop-index-client](https://github.com/LeanKit-Labs/nonstop-index-client)
  
 It also was made possible by several great Node modules:
 
