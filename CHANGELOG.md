@@ -1,5 +1,10 @@
 ## 0.1.*
 
+### 0.1.3
+
+ * Bug fix - Windows uses different environment variables to determine home directory
+ * Print current build step to console
+
 ### 0.1.2
 
  * Exit and warn user when they choose not to create a nonstop file
