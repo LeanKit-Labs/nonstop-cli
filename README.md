@@ -54,14 +54,19 @@ __Upload a specific package__
 ns upload ./packages/[specificPackageFile].tar.gz
 ```
 
+__Upload latest package without prompts__
+```bash
+ns upload --latest --index [index address] --port [index port] --token [auth token]
+```
+
 ## Dependencies
- 
+
 This project depends on several core nonstop modules:
 
  * [nonstop-pack](https://github.com/LeanKit-Labs/nonstop-pack)
  * [nonstop-build](https://github.com/LeanKit-Labs/nonstop-build)
  * [nonstop-index-client](https://github.com/LeanKit-Labs/nonstop-index-client)
- 
+
 It also was made possible by several great Node modules:
 
  * machina

@@ -62,7 +62,7 @@ module.exports = function( workingPath, prompt, build, index ) {
 			build: {
 				_onEnter: function() {
 					console.log( 'Starting build' );
-					build.start( workingPath, this.options.project, this.options.nopack )
+					build.start( workingPath, this.options.project, this.options.nopack, this.options.verbose )
 						.then( function( info ) {
 							this.handle( 'build.done', info );
 						}.bind( this ) )
@@ -97,8 +97,14 @@ module.exports = function( workingPath, prompt, build, index ) {
 			},
 			upload: {
 				_onEnter: function() {
+					this.address = this.options.address;
+					this.port = this.options.port;
+					this.token = this.options.token;
 					if ( !_.isEmpty( this.options.packages ) ) {
 						this.handle( 'packages.done', this.options.packages );
+					} else if( this.options.latest ) {
+						this.options.latest
+							.then( this.raiseResult( 'packages' ) );
 					} else {
 						prompt.pick( this.raiseResult( 'packages' ) );
 					}
@@ -110,7 +116,12 @@ module.exports = function( workingPath, prompt, build, index ) {
 					this.selections = selections;
 					if ( this.selections.length > 0 ) {
 						debug( 'packages selected for upload: %', selections );
-						prompt.server( this.raiseResult( 'server' ) );
+						if( !this.address || !this.token || !this.port ) {
+							prompt.server( this.raiseResult( 'server' ) );
+						} else {
+							this.address = this.options.address;
+							this.handle( 'server.done', this );
+						}
 					} else {
 						console.log( 'No packages selected for upload' );
 					}
@@ -122,8 +133,12 @@ module.exports = function( workingPath, prompt, build, index ) {
 					debug( 'server information: %s', server );
 					this.address = server.address;
 					this.port = server.port;
-					debug( 'asking user for token' );
-					prompt.token( this.raiseResult( 'token' ) );
+					if( !this.token ) {
+						debug( 'asking user for token' );
+						prompt.token( this.raiseResult( 'token' ) );
+					} else {
+						this.handle( 'upload', { token: this.token } );
+					}
 				},
 				upload: function( options ) {
 					try {
@@ -160,11 +175,6 @@ module.exports = function( workingPath, prompt, build, index ) {
 				'prompt.done': function( choice ) {
 					var nextState = prompt.lookup[ choice.initialization ];
 					this.transition( nextState );
-				}
-			},
-			start: {
-				_onEnter: function() {
-					server.start();
 				}
 			}
 		}

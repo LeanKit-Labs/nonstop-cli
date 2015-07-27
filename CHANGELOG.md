@@ -1,5 +1,9 @@
 ## 0.1.*
 
+### 0.1.4
+ * Enable upload to run without the need to prompt user
+ * Support verbose build step output
+
 ### 0.1.3
 
  * Bug fix - Windows uses different environment variables to determine home directory

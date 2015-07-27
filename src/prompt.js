@@ -8,6 +8,7 @@ var pack = require( 'nonstop-pack' );
 var settings = process.env.HOME ? path.join( process.env.HOME, '.nonstop' ) : path.join( process.env.HOMEDRIVE, process.env.HOMEPATH, '.nonstop' );
 var glob = require( 'globulesce' );
 var keys = require( 'when/keys' );
+var semver = require( 'semver' );
 
 function remember( key, val ) {
 	var exists = fs.existsSync( settings );
@@ -63,8 +64,6 @@ function addPattern( project, patterns, cb ) { // jshint ignore: line
 		}
 	], function( r ) {
 			if ( _.isEmpty( r.pattern ) && list.length > 0 ) {
-				// project.pack = { pattern: _.keys( patterns ).join( ',' ) };
-				// cb( project );
 				filterPatterns( project, patterns, cb );
 			} else {
 				if ( r.pattern ) {
@@ -290,11 +289,30 @@ function parseArgs( args ) {
 
 	commander
 		.command( 'upload [packages...]' )
+		.option( '-l, --latest', 'Only upload the latest package' )
+		.option( '--index <address>', 'The address of the package index' )
+		.option( '--port <port>', 'The port of the package index' )
+		.option( '--token <token>', 'The auth token for the index' )
 		.description( 'uploads all packages or specific package' )
-		.action( function( opts ) {
+		.action( function( packages, opts ) {
 			options.action = 'upload';
-			if ( _.isArray( opts ) ) {
-				options.packages = opts;
+			if ( _.isArray( packages ) ) {
+				options.packages = packages;
+			}
+			options.address = opts.index || remember( 'index-address' );
+			options.port = opts.port || remember( 'index-port' );
+			options.token = opts.token || remember( 'index-token' );
+			if( opts.latest ) {
+				options.latest =
+					pack.getList( process.cwd() )
+						.then( function( packages ) {
+							var sorted = packages.sort( function( a,b ) {
+								return semver.rcompare( a.version, b.version );
+							} );
+							var package = sorted[ 0 ];
+							var file = path.relative( process.cwd(), package.fullPath );
+							return [ file ];
+						} );
 			}
 		} );
 
@@ -302,10 +320,12 @@ function parseArgs( args ) {
 		.version( version )
 		.option( '--project <projectName>', 'limit build to a project' )
 		.option( '-f, --force', 'overwrite existing packages' )
+		.option( '-v, --verbose', 'display build step output' )
 		.parse( args );
 
 	options.project = commander.project;
 	options.overwrite = ( commander.force === true );
+	options.verbose = commander.verbose;
 
 	return options;
 }
@@ -337,7 +357,7 @@ function selectPackage( cb ) {
 						cb( list );
 					}
 				} );
-		} );
+		}, console.log );
 }
 
 function serverPrompt( cb ) {
