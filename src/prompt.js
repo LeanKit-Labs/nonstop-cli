@@ -5,9 +5,10 @@ var fs = require( 'fs' );
 var packagePath = path.resolve( path.dirname( module.filename ), '../package.json' );
 var version = require( packagePath ).version;
 var pack = require( 'nonstop-pack' );
-var settings = path.join( process.env.HOME, '.nonstop' );
+var settings = process.env.HOME ? path.join( process.env.HOME, '.nonstop' ) : path.join( process.env.HOMEDRIVE, process.env.HOMEPATH, '.nonstop' );
 var glob = require( 'globulesce' );
 var keys = require( 'when/keys' );
+var semver = require( 'semver' );
 
 function remember( key, val ) {
 	var exists = fs.existsSync( settings );
@@ -40,13 +41,13 @@ function addArgument( step, cb ) { // jshint ignore: line
 			message: 'command: "' + step.command + " " + _.map( step.arguments ).join( ' ' ) + '"\nAdd an argument (empty string for no args)', // jshint ignore: line
 		}
 	], function( r ) {
-		if ( _.isEmpty( r.arg ) ) {
-			cb( step );
-		} else {
-			step.arguments.push( r.arg.trim() );
-			addArgument( step, cb );
-		}
-	} );
+			if ( _.isEmpty( r.arg ) ) {
+				cb( step );
+			} else {
+				step.arguments.push( r.arg.trim() );
+				addArgument( step, cb );
+			}
+		} );
 }
 
 function addPattern( project, patterns, cb ) { // jshint ignore: line
@@ -54,7 +55,7 @@ function addPattern( project, patterns, cb ) { // jshint ignore: line
 		return '    ' + pattern + ' matched ' + count + ' files';
 	} );
 	var message = list.length ? 'Packaging with:\n' + list.join( '\n' ) + '\nAdd a glob pattern (empty pattern to stop)' :
-		'Provide a glob pattern to package with';
+	'Provide a glob pattern to package with';
 	inquire.prompt( [
 		{
 			type: 'input',
@@ -62,29 +63,27 @@ function addPattern( project, patterns, cb ) { // jshint ignore: line
 			message: message
 		}
 	], function( r ) {
-		if ( _.isEmpty( r.pattern ) && list.length > 0 ) {
-			// project.pack = { pattern: _.keys( patterns ).join( ',' ) };
-			// cb( project );
-			filterPatterns( project, patterns, cb );
-		} else {
-			if( r.pattern ) {
-				glob( project.path, r.pattern, [ '.git' ] )
-					.then( function( matches ) {
-						console.log( 'Pattern "' + r.pattern + ' matched ' + matches.length + ' files.' );
-						console.log( _.map( _.take( matches, 20 ), function( m ) {
+			if ( _.isEmpty( r.pattern ) && list.length > 0 ) {
+				filterPatterns( project, patterns, cb );
+			} else {
+				if ( r.pattern ) {
+					glob( project.path, r.pattern, [ '.git' ] )
+						.then( function( matches ) {
+							console.log( 'Pattern "' + r.pattern + ' matched ' + matches.length + ' files.' );
+							console.log( _.map( _.take( matches, 20 ), function( m ) {
 								return '    ' + m;
 							} ).join( '\n' ) );
-						if( matches.length > 20 ) {
-							console.log( '    ...' );
-						}
-						patterns[ r.pattern ] = matches.length;
-						addPattern( project, patterns, cb );
-					} );
-			} else {
-				addPattern( project, patterns, cb );
+							if ( matches.length > 20 ) {
+								console.log( '    ...' );
+							}
+							patterns[ r.pattern ] = matches.length;
+							addPattern( project, patterns, cb );
+						} );
+				} else {
+					addPattern( project, patterns, cb );
+				}
 			}
-		}
-	} );
+		} );
 }
 
 function addProject( projects, cb ) { // jshint ignore: line
@@ -118,19 +117,19 @@ function addProject( projects, cb ) { // jshint ignore: line
 			validate: checkPath
 		}
 	], function( r ) {
-		if ( r.addProject ) {
-			var project = {
-				name: r.name,
-				path: r.path,
-				steps: {}
-			};
-			defineStep( project, function() {
-				addPattern( project, {}, cb );
-			} );
-		} else {
-			cb();
-		}
-	} );
+			if ( r.addProject ) {
+				var project = {
+					name: r.name,
+					path: r.path,
+					steps: {}
+				};
+				defineStep( project, function() {
+					addPattern( project, {}, cb );
+				} );
+			} else {
+				cb();
+			}
+		} );
 }
 
 function chooseFormat( cb ) {
@@ -143,8 +142,8 @@ function chooseFormat( cb ) {
 			default: [ 'JSON' ]
 		}
 	], function( r ) {
-		cb( r.format.toLowerCase() );
-	} );
+			cb( r.format.toLowerCase() );
+		} );
 }
 
 function createPrompt( cb ) {
@@ -179,34 +178,34 @@ function createPrompt( cb ) {
 			}
 		}
 	], function( r ) {
-		var build = {
-			platforms: {},
-			projects: {}
-		};
-		_.each( r.platforms, function( p ) {
-			var platform = build.platforms[ p ] = { architectures: [] };
-			_.each( r.architectures, function( a ) {
-				platform.architectures.push( a );
+			var build = {
+				platforms: {},
+				projects: {}
+			};
+			_.each( r.platforms, function( p ) {
+				var platform = build.platforms[ p ] = { architectures: [] };
+				_.each( r.architectures, function( a ) {
+					platform.architectures.push( a );
+				} );
 			} );
-		} );
-		function onProject( project ) {
-			if ( project ) {
-				build.projects[ project.name ] = {
-					path: project.path,
-					steps: project.steps,
-					pack: project.pack
-				};
+			function onProject( project ) {
+				if ( project ) {
+					build.projects[ project.name ] = {
+						path: project.path,
+						steps: project.steps,
+						pack: project.pack
+					};
+					addProject( build.projects, onProject );
+				} else {
+					cb( build );
+				}
+			}
+			if ( r.generateBuild ) {
 				addProject( build.projects, onProject );
 			} else {
-				cb( build );
+				console.log( 'A nonstop file is required to use the CLI.' );
 			}
-		}
-		if ( r.generateBuild ) {
-			addProject( build.projects, onProject );
-		} else {
-			console.log( 'A nonstop file is required to use the CLI.' );
-		}
-	} );
+		} );
 }
 
 function defineStep( project, cb ) { // jshint ignore: line
@@ -240,18 +239,18 @@ function defineStep( project, cb ) { // jshint ignore: line
 			}
 		}
 	], function( r ) {
-		if ( _.isEmpty( r.name ) ) {
-			cb( project );
-		} else {
-			step.command = r.command;
-			step.path = r.path;
-			step.arguments = [];
-			addArgument( step, function( step ) {
-				project.steps[ r.name ] = step;
-				defineStep( project, cb );
-			} );
-		}
-	} );
+			if ( _.isEmpty( r.name ) ) {
+				cb( project );
+			} else {
+				step.command = r.command;
+				step.path = r.path;
+				step.arguments = [];
+				addArgument( step, function( step ) {
+					project.steps[ r.name ] = step;
+					defineStep( project, cb );
+				} );
+			}
+		} );
 }
 
 function filterPatterns( project, patterns, cb ) {
@@ -265,9 +264,9 @@ function filterPatterns( project, patterns, cb ) {
 			} )
 		}
 	], function( r ) {
-		project.pack = { pattern: r.patterns.join( ',' ) };
-		cb( project );
-	} );
+			project.pack = { pattern: r.patterns.join( ',' ) };
+			cb( project );
+		} );
 }
 
 function parseArgs( args ) {
@@ -290,11 +289,30 @@ function parseArgs( args ) {
 
 	commander
 		.command( 'upload [packages...]' )
+		.option( '-l, --latest', 'Only upload the latest package' )
+		.option( '--index <address>', 'The address of the package index' )
+		.option( '--port <port>', 'The port of the package index' )
+		.option( '--token <token>', 'The auth token for the index' )
 		.description( 'uploads all packages or specific package' )
-		.action( function( opts ) {
+		.action( function( packages, opts ) {
 			options.action = 'upload';
-			if ( _.isArray( opts ) ) {
-				options.packages = opts;
+			if ( _.isArray( packages ) ) {
+				options.packages = packages;
+			}
+			options.address = opts.index || remember( 'index-address' );
+			options.port = opts.port || remember( 'index-port' );
+			options.token = opts.token || remember( 'index-token' );
+			if( opts.latest ) {
+				options.latest =
+					pack.getList( process.cwd() )
+						.then( function( packages ) {
+							var sorted = packages.sort( function( a,b ) {
+								return semver.rcompare( a.version, b.version );
+							} );
+							var package = sorted[ 0 ];
+							var file = path.relative( process.cwd(), package.fullPath );
+							return [ file ];
+						} );
 			}
 		} );
 
@@ -302,10 +320,12 @@ function parseArgs( args ) {
 		.version( version )
 		.option( '--project <projectName>', 'limit build to a project' )
 		.option( '-f, --force', 'overwrite existing packages' )
+		.option( '-v, --verbose', 'display build step output' )
 		.parse( args );
 
 	options.project = commander.project;
 	options.overwrite = ( commander.force === true );
+	options.verbose = commander.verbose;
 
 	return options;
 }
@@ -329,15 +349,15 @@ function selectPackage( cb ) {
 					choices: [ 'all' ].concat( packageNames )
 				}
 			], function( r ) {
-				var list;
-				if ( _.isEqual( r.packages, [ 'all' ] ) ) {
-					cb( packages );
-				} else {
-					list = _.without( r.packages, 'all' );
-					cb( list );
-				}
-			} );
-		} );
+					var list;
+					if ( _.isEqual( r.packages, [ 'all' ] ) ) {
+						cb( packages );
+					} else {
+						list = _.without( r.packages, 'all' );
+						cb( list );
+					}
+				} );
+		}, console.log );
 }
 
 function serverPrompt( cb ) {
@@ -355,14 +375,14 @@ function serverPrompt( cb ) {
 			default: remember( 'index-port' )
 		}
 	], function( r ) {
-		if ( _.isEmpty( r.address ) ) {
-			serverPrompt( cb );
-		} else {
-			remember( 'index-address', r.address );
-			remember( 'index-port', r.port );
-			cb( r );
-		}
-	} );
+			if ( _.isEmpty( r.address ) ) {
+				serverPrompt( cb );
+			} else {
+				remember( 'index-address', r.address );
+				remember( 'index-port', r.port );
+				cb( r );
+			}
+		} );
 }
 
 function tokenPrompt( cb ) {
@@ -374,9 +394,9 @@ function tokenPrompt( cb ) {
 			default: remember( 'index-token' )
 		}
 	], function( r ) {
-		remember( 'index-token', r.token );
-		cb( r );
-	} );
+			remember( 'index-token', r.token );
+			cb( r );
+		} );
 }
 
 module.exports = {

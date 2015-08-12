@@ -11,8 +11,8 @@ describe( 'Command parsing', function() {
 
 		it( 'should set option to build with no overwrite', function() {
 			options.action.should.equal( 'build' );
-			should( options.nopack ).not.exist; // jshint ignore: line
-			options.overwrite.should.be.false; // jshint ignore:line
+			options.nopack.should.be.false;
+			options.overwrite.should.be.false;
 		} );
 	} );
 
@@ -26,7 +26,20 @@ describe( 'Command parsing', function() {
 
 		it( 'should set option to build with no overwrite', function() {
 			options.action.should.equal( 'build' );
-			options.overwrite.should.be.true; // jshint ignore:line
+			options.overwrite.should.be.true;
+		} );
+	} );
+
+	describe( 'when building with verbose', function() {
+		var options;
+
+		before( function() {
+			var prompt = require( '../src/prompt.js' );
+			options = prompt.parse( 'node ns -v'.split( ' ' ) );
+		} );
+
+		it( 'should set option to build with step output', function() {
+			options.verbose.should.be.true;
 		} );
 	} );
 
@@ -41,7 +54,7 @@ describe( 'Command parsing', function() {
 		it( 'should set option to build specific project without overwrite', function() {
 			options.action.should.equal( 'build' );
 			options.project.should.equal( 'test1' );
-			options.overwrite.should.be.false; // jshint ignore:line
+			options.overwrite.should.be.false;
 		} );
 	} );
 
@@ -56,7 +69,7 @@ describe( 'Command parsing', function() {
 		it( 'should set option to build specific project without overwrite', function() {
 			options.action.should.equal( 'build' );
 			options.project.should.equal( 'test1' );
-			options.overwrite.should.be.true; // jshint ignore:line
+			options.overwrite.should.be.true;
 		} );
 	} );
 
@@ -70,8 +83,8 @@ describe( 'Command parsing', function() {
 
 		it( 'should set nopack without overwrite', function() {
 			options.action.should.equal( 'build' );
-			options.nopack.should.be.true; // jshint ignore: line
-			options.overwrite.should.be.false; // jshint ignore:line
+			options.nopack.should.be.true;
+			options.overwrite.should.be.false;
 		} );
 	} );
 
@@ -85,9 +98,9 @@ describe( 'Command parsing', function() {
 
 		it( 'should set nopack without overwrite for project', function() {
 			options.action.should.equal( 'build' );
-			options.nopack.should.be.true; // jshint ignore: line
+			options.nopack.should.be.true;
 			options.project.should.equal( 'test2' );
-			options.overwrite.should.be.false; // jshint ignore:line
+			options.overwrite.should.be.false;
 		} );
 	} );
 
@@ -101,8 +114,8 @@ describe( 'Command parsing', function() {
 
 		it( 'should set upload', function() {
 			options.action.should.equal( 'upload' );
-			should( options.package ).not.exist; // jshint ignore:line
-			options.overwrite.should.be.false; // jshint ignore:line
+			should( options.package ).not.exist;
+			options.overwrite.should.be.false;
 		} );
 	} );
 
@@ -116,8 +129,8 @@ describe( 'Command parsing', function() {
 
 		it( 'should set upload', function() {
 			options.action.should.equal( 'upload' );
-			options.packages.should.eql( [] ); // jshint ignore:line
-			options.overwrite.should.be.false; // jshint ignore:line
+			options.packages.should.eql( [] );
+			options.overwrite.should.be.false;
 		} );
 	} );
 
@@ -131,8 +144,8 @@ describe( 'Command parsing', function() {
 
 		it( 'should set upload', function() {
 			options.action.should.equal( 'upload' );
-			options.packages.should.eql( [ './packages/blah.tar.gz' ] ); // jshint ignore:line
-			options.overwrite.should.be.false; // jshint ignore:line
+			options.packages.should.eql( [ './packages/blah.tar.gz' ] );
+			options.overwrite.should.be.false;
 		} );
 	} );
 
@@ -146,8 +159,8 @@ describe( 'Command parsing', function() {
 
 		it( 'should set upload', function() {
 			options.action.should.equal( 'upload' );
-			options.packages.should.eql( [ './packages/blah.tar.gz', './packages/barf.tar.gz' ] ); // jshint ignore:line
-			options.overwrite.should.be.false; // jshint ignore:line
+			options.packages.should.eql( [ './packages/blah.tar.gz', './packages/barf.tar.gz' ] );
+			options.overwrite.should.be.false;
 		} );
 	} );
-} );	
+} );
