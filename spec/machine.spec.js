@@ -104,6 +104,92 @@ describe( 'FSM', function() {
 		} );
 	} );
 
+	describe( 'when single project build fails', function() {
+		var machine, promptMock, buildMock, exit;
+
+		before( function( done ) {
+			var exit = process.exit;
+			process.exit = sinon.spy( function() { done(); } );
+
+			buildMock = sinon.mock( build );
+			buildMock.expects( 'start' )
+				.withArgs( './spec/project/', undefined, false )
+				.once()
+				.returns( when.resolve( [
+					{ value: { name: 'test1', files: [ 1, 2, 3 ], output: 'pretend.tar.gz' } },
+					{ value: { name: 'test2', failed: true, error: 'Error: fail-whale!' } }
+				] ) );
+			buildMock.expects( 'hasBuildFile' )
+				.once()
+				.returns( when( [
+					{ value: { name: 'test1' } },
+					{ value: { name: 'test2' } },
+				] ) );
+
+			promptMock = sinon.mock( prompt );
+			promptMock.expects( 'parse' ).once().returns( { action: 'build', nopack: false } );
+			machine = machineFn( './spec/project/', prompt, build, index );
+		} );
+
+		it( 'should get args from prompt', function() {
+			promptMock.verify();
+		} );
+
+		it( 'should call build start', function() {
+			buildMock.verify();
+		} );
+
+		it( 'should exit with non 0 code', function() {
+			process.exit.calledWith( 1 ).should.be.true;
+		} );
+
+		after( function() {
+			buildMock.restore();
+			promptMock.restore();
+			process.exit = exit;
+		} );
+	} );
+
+	describe( 'when multi project build has a failing project', function() {
+		var machine, promptMock, buildMock, exit;
+
+		before( function( done ) {
+			var exit = process.exit;
+			process.exit = sinon.spy( function() { done(); } );
+
+			buildMock = sinon.mock( build );
+			buildMock.expects( 'start' )
+				.withArgs( './spec/project/', undefined, false )
+				.once()
+				.returns( when.resolve( [ { value: { name: 'test', failed: true, error: 'Error: fail-whale!' } } ] ) );
+			buildMock.expects( 'hasBuildFile' )
+				.once()
+				.returns( when( [ { value: { name: 'test' } } ] ) );
+
+			promptMock = sinon.mock( prompt );
+			promptMock.expects( 'parse' ).once().returns( { action: 'build', nopack: false } );
+			machine = machineFn( './spec/project/', prompt, build, index );
+		} );
+
+		it( 'should get args from prompt', function() {
+			promptMock.verify();
+		} );
+
+		it( 'should call build start', function() {
+			buildMock.verify();
+		} );
+
+		it( 'should exit with non 0 code', function() {
+			process.exit.calledWith( 1 ).should.be.true;
+		} );
+
+		after( function() {
+			buildMock.restore();
+			promptMock.restore();
+			process.exit = exit;
+		} );
+	} );
+
 	describe( 'when build invoked with valid file and nopack', function() {
 		var machine, promptMock, buildMock;
 

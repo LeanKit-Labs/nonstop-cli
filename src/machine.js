@@ -62,13 +62,14 @@ module.exports = function( workingPath, prompt, build, index ) {
 			build: {
 				_onEnter: function() {
 					console.log( 'Starting build' );
+					function buildSuccess( info ) {
+						this.handle( 'build.done', info );
+					}
+					function buildError( err ) {
+						this.handle( 'build.failed', err );
+					}
 					build.start( workingPath, this.options.project, this.options.nopack, this.options.verbose )
-						.then( function( info ) {
-							this.handle( 'build.done', info );
-						}.bind( this ) )
-						.then( null, function( err ) {
-							this.handle( 'build.failed', err );
-						}.bind( this ) );
+						.then( buildSuccess.bind( this ), buildError.bind( this ) );
 				},
 				'build.done': function( info ) {
 					var onNoPackage;
@@ -77,8 +78,11 @@ module.exports = function( workingPath, prompt, build, index ) {
 						onNoPackage = 'nopack specified.';
 					}
 					console.log( 'Completed build of ' + info.length + ' package(s):' );
-					_.map( info, function( i ) {
+					var failed = 0;
+					var total = 0;
+					_.each( info, function( i ) {
 						var projectName = i.value.name.split( '~' )[ 0 ];
+						total ++;
 						if ( !i.value.failed ) {
 							var project = i.value;
 							if ( project.files ) {
@@ -87,12 +91,23 @@ module.exports = function( workingPath, prompt, build, index ) {
 								console.log( '    ' + projectName + ' - ' + ( onNoPackage || 'no files matched pattern: "' + project.pattern + '"' ) );
 							}
 						} else {
+							failed ++;
 							console.log( '    ' + projectName + ' - ' + i.value.error );
 						}
+						if( failed > 0 ) {
+							if( total > 1 ) {
+								console.log( failed + ' of ' + total + ' projects failed.' );
+							} else {
+								console.log( 'Build failed.' );
+							}
+							process.exit( failed );
+						}
 					} );
+
 				},
 				'build.failed': function( err ) {
-					console.log( err );
+					console.log( "	Build failed with: ", err );
+					process.exit( 1 );
 				}
 			},
 			upload: {

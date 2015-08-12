@@ -1,5 +1,8 @@
 ## 0.1.*
 
+### 0.1.5
+Exit with non-zero if any projects in the build fail.
+
 ### 0.1.4
  * Enable upload to run without the need to prompt user
  * Support verbose build step output
