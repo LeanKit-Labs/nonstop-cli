@@ -1,5 +1,8 @@
 ## 0.1.*
 
+### 0.1.6
+Update to latest nonstop-pack with support for drone environment variables.
+
 ### 0.1.5
 Exit with non-zero if any projects in the build fail.
 
