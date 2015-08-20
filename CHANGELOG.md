@@ -1,5 +1,8 @@
 ## 0.1.*
 
+### 0.1.7
+Update to latest nonstop-pack to support new naming format that includes commit slugs.
+
 ### 0.1.6
 Update to latest nonstop-pack with support for drone environment variables.
 
