@@ -245,6 +245,7 @@ describe( 'FSM', function() {
 				.withArgs(
 					{ index:
 						{
+							api: '/api',
 							host: 'localhost',
 							port: 12345,
 							token: 'ohhai'
@@ -309,6 +310,7 @@ describe( 'FSM', function() {
 				.withArgs(
 					{ index:
 						{
+							api: '/api',
 							host: 'localhost',
 							port: 12345,
 							token: 'ohhai'

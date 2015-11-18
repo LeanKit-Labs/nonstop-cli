@@ -115,6 +115,7 @@ module.exports = function( workingPath, prompt, build, index ) {
 					this.address = this.options.address;
 					this.port = this.options.port;
 					this.token = this.options.token;
+					this.url = this.options.url || '/api';
 					if ( !_.isEmpty( this.options.packages ) ) {
 						this.handle( 'packages.done', this.options.packages );
 					} else if( this.options.latest ) {
@@ -161,7 +162,8 @@ module.exports = function( workingPath, prompt, build, index ) {
 							index: {
 								host: this.address,
 								port: this.port,
-								token: options.token
+								token: options.token,
+								api: this.url
 							}
 						} );
 						var promises = _.map( this.selections, function( pkg ) {

@@ -59,6 +59,11 @@ __Upload latest package without prompts__
 ns upload --latest --index [index address] --port [index port] --token [auth token]
 ```
 
+__Upload latest package without prompts and custom api url__
+```bash
+ns upload --latest --index [index address] --url /prefixed/api --port [index port] --token [auth token]
+```
+
 ## Dependencies
 
 This project depends on several core nonstop modules:

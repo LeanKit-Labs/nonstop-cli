@@ -291,6 +291,7 @@ function parseArgs( args ) {
 		.command( 'upload [packages...]' )
 		.option( '-l, --latest', 'Only upload the latest package' )
 		.option( '--index <address>', 'The address of the package index' )
+		.option( '--url <url>', 'The API url if not "api"')
 		.option( '--port <port>', 'The port of the package index' )
 		.option( '--token <token>', 'The auth token for the index' )
 		.description( 'uploads all packages or specific package' )
@@ -302,6 +303,7 @@ function parseArgs( args ) {
 			options.address = opts.index || remember( 'index-address' );
 			options.port = opts.port || remember( 'index-port' );
 			options.token = opts.token || remember( 'index-token' );
+			options.url = opts.url || remember( 'index-url' );
 			if( opts.latest ) {
 				options.latest =
 					pack.getList( process.cwd() )
