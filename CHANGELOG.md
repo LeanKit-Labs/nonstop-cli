@@ -1,3 +1,8 @@
+## 0.2.*
+
+### 0.2.0
+Update nonstop-pack version for better build number calculations. Since this is a departure, I've bumoed the version to treat it more like a breaking change.
+
 ## 0.1.*
 
 ### 0.1.8
