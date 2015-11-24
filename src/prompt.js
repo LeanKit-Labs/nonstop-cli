@@ -294,6 +294,7 @@ function parseArgs( args ) {
 		.option( '--url <url>', 'The API url if not "api"')
 		.option( '--port <port>', 'The port of the package index' )
 		.option( '--token <token>', 'The auth token for the index' )
+		.option( '--secure', 'Use HTTPS to communicate with the index' )
 		.description( 'uploads all packages or specific package' )
 		.action( function( packages, opts ) {
 			options.action = 'upload';
@@ -304,6 +305,7 @@ function parseArgs( args ) {
 			options.port = opts.port || remember( 'index-port' );
 			options.token = opts.token || remember( 'index-token' );
 			options.url = opts.url || remember( 'index-url' );
+			options.secure = opts.secure || remember( 'index-https' );
 			if( opts.latest ) {
 				options.latest =
 					pack.getList( process.cwd() )
@@ -375,6 +377,12 @@ function serverPrompt( cb ) {
 			name: 'port',
 			message: 'Port',
 			default: remember( 'index-port' )
+		},
+		{
+			type: 'confirm',
+			name: 'secure',
+			message: 'Use HTTPS',
+			default: remember( 'index-https' )
 		}
 	], function( r ) {
 			if ( _.isEmpty( r.address ) ) {
@@ -382,6 +390,7 @@ function serverPrompt( cb ) {
 			} else {
 				remember( 'index-address', r.address );
 				remember( 'index-port', r.port );
+				remember( 'index-https', r.secure || false );
 				cb( r );
 			}
 		} );

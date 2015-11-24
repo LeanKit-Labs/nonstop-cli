@@ -1,6 +1,6 @@
 {
   "name": "nonstop-cli",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "nonstop CLI for building, packaging and uploading locally",
   "main": "src/index.js",
   "scripts": {

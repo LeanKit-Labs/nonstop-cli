@@ -1,7 +1,10 @@
 ## 0.2.*
 
+### 0.2.1
+Add support for uploading over HTTPS via command line arguments and prompts
+
 ### 0.2.0
-Update nonstop-pack version for better build number calculations. Since this is a departure, I've bumoed the version to treat it more like a breaking change.
+Update nonstop-pack version for better build number calculations. Since this is a departure, I've bumoed the version to treat it more like a breaking change
 
 ## 0.1.*
 

@@ -248,7 +248,8 @@ describe( 'FSM', function() {
 							api: '/api',
 							host: 'localhost',
 							port: 12345,
-							token: 'ohhai'
+							token: 'ohhai',
+							ssl: false
 						}
 					} )
 				.returns( client );
@@ -262,7 +263,7 @@ describe( 'FSM', function() {
 			promptMock
 				.expects( 'server' )
 				.once()
-				.callsArgWith( 0, { address: 'localhost', port: 12345 } );
+				.callsArgWith( 0, { address: 'localhost', port: 12345, secure: false } );
 			promptMock
 				.expects( 'token' )
 				.once()
@@ -313,7 +314,8 @@ describe( 'FSM', function() {
 							api: '/api',
 							host: 'localhost',
 							port: 12345,
-							token: 'ohhai'
+							token: 'ohhai',
+							ssl: true
 						}
 					} )
 				.returns( client );
@@ -322,7 +324,7 @@ describe( 'FSM', function() {
 			promptMock
 				.expects( 'server' )
 				.once()
-				.callsArgWith( 0, { address: 'localhost', port: 12345 } );
+				.callsArgWith( 0, { address: 'localhost', port: 12345, secure: false } );
 			promptMock
 				.expects( 'token' )
 				.once()
@@ -330,7 +332,7 @@ describe( 'FSM', function() {
 			promptMock
 				.expects( 'parse' )
 				.once()
-				.returns( { action: 'upload', packages: [ 'a~b~c~d~e~f~g~h~i.tar.gz' ] } );
+				.returns( { action: 'upload', packages: [ 'a~b~c~d~e~f~g~h~i.tar.gz' ], secure: true } );
 			machine = machineFn( './spec/project/', prompt, build, index.init );
 			done();
 		} );

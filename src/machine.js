@@ -116,6 +116,7 @@ module.exports = function( workingPath, prompt, build, index ) {
 					this.port = this.options.port;
 					this.token = this.options.token;
 					this.url = this.options.url || '/api';
+					this.secure = this.options.secure || false;
 					if ( !_.isEmpty( this.options.packages ) ) {
 						this.handle( 'packages.done', this.options.packages );
 					} else if( this.options.latest ) {
@@ -163,10 +164,12 @@ module.exports = function( workingPath, prompt, build, index ) {
 								host: this.address,
 								port: this.port,
 								token: options.token,
-								api: this.url
+								api: this.url,
+								ssl: this.secure || false
 							}
 						} );
 						var promises = _.map( this.selections, function( pkg ) {
+							console.log( "    UPLOAD", pkg );
 							return client.upload( pkg );
 						} );
 						when.all( promises )
@@ -177,7 +180,7 @@ module.exports = function( workingPath, prompt, build, index ) {
 								console.log( 'Upload(s) failed with', err );
 							} );
 					} catch (e) {
-						console.log( ':(', e );
+						console.log( '    :(', e );
 					}
 				}
 			},
