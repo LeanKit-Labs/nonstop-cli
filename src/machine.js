@@ -158,30 +158,26 @@ module.exports = function( workingPath, prompt, build, index ) {
 					}
 				},
 				upload: function( options ) {
-					try {
-						var client = index( {
-							index: {
-								host: this.address,
-								port: this.port,
-								token: options.token,
-								api: this.url,
-								ssl: this.secure || false
-							}
+					var client = index( {
+						index: {
+							host: this.address,
+							port: this.port,
+							token: options.token,
+							api: this.url,
+							ssl: this.secure || false
+						}
+					} );
+					var promises = _.map( this.selections, function( pkg ) {
+						return client.upload( pkg );
+					} );
+					when.all( promises )
+						.then( function() {
+							console.log( 'Upload(s) complete' );
+						} )
+						.then( null, function( err ) {
+							console.log( 'Upload(s) failed with', err );
+							process.exit( 100 );
 						} );
-						var promises = _.map( this.selections, function( pkg ) {
-							console.log( "    UPLOAD", pkg );
-							return client.upload( pkg );
-						} );
-						when.all( promises )
-							.then( function() {
-								console.log( 'Upload(s) complete' );
-							} )
-							.then( null, function( err ) {
-								console.log( 'Upload(s) failed with', err );
-							} );
-					} catch (e) {
-						console.log( '    :(', e );
-					}
 				}
 			},
 			prompt: {

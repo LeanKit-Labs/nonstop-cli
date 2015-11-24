@@ -1,5 +1,8 @@
 ## 0.2.*
 
+### 0.2.2
+Use a non-zero exit code when upload fails
+
 ### 0.2.1
 Add support for uploading over HTTPS via command line arguments and prompts
 
