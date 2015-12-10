@@ -1,6 +1,6 @@
 {
   "name": "nonstop-cli",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "nonstop CLI for building, packaging and uploading locally",
   "main": "src/index.js",
   "scripts": {
@@ -52,9 +52,9 @@
     "js-yaml": "^3.3.1",
     "lodash": "3.x",
     "machina": "1.x",
-    "nonstop-build": "~0.1.0",
-    "nonstop-index-client": "~0.1.6",
-    "nonstop-pack": "~0.2.0",
+    "nonstop-build": "~0.1.1",
+    "nonstop-index-client": "~0.2.0",
+    "nonstop-pack": "~0.2.1",
     "when": "3.x",
     "semver": "^3.0.1"
   }

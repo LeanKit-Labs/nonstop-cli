@@ -2,6 +2,10 @@ var _ = require( 'lodash' );
 var when = require( 'when' );
 var machina = require( 'machina' );
 var debug = require( 'debug' )( 'nonstop:cli' );
+var command = require( './command' );
+var path = require( 'path' );
+var root = path.resolve( __dirname, '../' );
+var version = require( path.resolve( root, './package.json' ) ).version;
 
 module.exports = function( workingPath, prompt, build, index ) {
 	var Machine = machina.Fsm.extend( {
@@ -23,6 +27,22 @@ module.exports = function( workingPath, prompt, build, index ) {
 		states: {
 			initializing: {
 				_onEnter: function() {
+					console.log( 'nonstop-cli version', version );
+					command( 'npm list --depth=0 | grep "├── nonstop"', root )
+						.then(
+							function( info ) {
+								console.log( info );
+							},
+							function() {
+								console.log( 'Could not determine dependency versions' );
+							}
+						)
+						.then( function() {
+							this.handle( 'intro.done' );
+						}.bind( this ) );
+
+				},
+				'intro.done': function() {
 					debug( 'looking for a build file' );
 					build.hasBuildFile( workingPath )
 						.then( function( result ) {
@@ -106,7 +126,7 @@ module.exports = function( workingPath, prompt, build, index ) {
 
 				},
 				'build.failed': function( err ) {
-					console.log( "	Build failed with: ", err );
+					console.log( '	Build failed with: ', err );
 					process.exit( 1 );
 				}
 			},

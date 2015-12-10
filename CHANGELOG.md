@@ -1,5 +1,9 @@
 ## 0.2.*
 
+### 0.2.3
+ * Update nonstop-build to 0.1.1 and nonstop-pack to 0.2.1.
+ * Print version info to console for this lib and nonstop dependencies
+
 ### 0.2.2
 Use a non-zero exit code when upload fails
 

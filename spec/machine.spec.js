@@ -37,7 +37,9 @@ describe( 'FSM', function() {
 			promptMock = sinon.mock( prompt );
 			promptMock.expects( 'error' ).once().withExactArgs( 'Invalid working directory - "./lol/jk/"', err );
 			machine = machineFn( './lol/jk/', prompt, build, index );
-			done();
+			setTimeout( function() {
+				done();
+			}, 600 );
 		} );
 
 		it( 'should report the error', function() {
@@ -59,7 +61,9 @@ describe( 'FSM', function() {
 			promptMock = sinon.mock( prompt );
 			promptMock.expects( 'create' ).once();
 			machine = machineFn( './lol/jk/', prompt, build, index );
-			done();
+			setTimeout( function() {
+				done();
+			}, 600 );
 		} );
 
 		it( 'should call prompt create', function() {
@@ -87,7 +91,9 @@ describe( 'FSM', function() {
 			promptMock = sinon.mock( prompt );
 			promptMock.expects( 'parse' ).once().returns( { action: 'build', nopack: false } );
 			machine = machineFn( './spec/project/', prompt, build, index );
-			done();
+			setTimeout( function() {
+				done();
+			}, 600 );
 		} );
 
 		it( 'should get args from prompt', function() {
@@ -205,7 +211,9 @@ describe( 'FSM', function() {
 			promptMock = sinon.mock( prompt );
 			promptMock.expects( 'parse' ).once().returns( { action: 'build', nopack: true } );
 			machine = machineFn( './spec/project/', prompt, build, index );
-			done();
+			setTimeout( function() {
+				done();
+			}, 600 );
 		} );
 
 		it( 'should get args from prompt', function() {
@@ -273,7 +281,9 @@ describe( 'FSM', function() {
 				.once()
 				.returns( { action: 'upload' } );
 			machine = machineFn( './spec/project/', prompt, build, index.init );
-			done();
+			setTimeout( function() {
+				done();
+			}, 600 );
 		} );
 
 		it( 'should upload the file correctly', function() {
@@ -334,7 +344,9 @@ describe( 'FSM', function() {
 				.once()
 				.returns( { action: 'upload', packages: [ 'a~b~c~d~e~f~g~h~i.tar.gz' ], secure: true } );
 			machine = machineFn( './spec/project/', prompt, build, index.init );
-			done();
+			setTimeout( function() {
+				done();
+			}, 600 );
 		} );
 
 		it( 'should upload the file correctly', function() {
